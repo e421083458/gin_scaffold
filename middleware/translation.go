@@ -28,6 +28,14 @@ func TranslationMiddleware() gin.HandlerFunc {
 			break
 		}
 
+		//自定义错误内容
+		//public.Validate.RegisterTranslation("required", trans, func(ut ut.Translator) error {
+		//	return ut.Add("required", "{0} must have a value!", true) // see universal-translator for details
+		//}, func(ut ut.Translator, fe validator.FieldError) string {
+		//	t, _ := ut.T("required", fe.Field())
+		//	return t
+		//})
+		
 		//设置trans到context
 		c.Set("trans", trans)
 		c.Next()
