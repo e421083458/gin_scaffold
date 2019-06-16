@@ -1,0 +1,27 @@
+# This is base config
+
+[base]
+    debug_mode="debug"
+    time_location="Asia/Chongqing"
+
+[http]
+    addr =":8880"                       # 监听地址, default ":8700"
+    read_timeout = 10                   # 读取超时时长
+    write_timeout = 10                  # 写入超时时长
+    max_header_bytes = 20               # 最大的header大小，二进制位长度
+    allow_ip = [                        # 白名单ip列表
+        "127.0.0.1",
+        "192.168.1.1"
+    ]
+
+[log]
+    log_level = "trace"         #日志打印最低级别
+    [log.file_writer]           #文件写入配置
+        on = true
+        log_path = "./gin_scaffold.inf.log"
+        rotate_log_path = "./gin_scaffold.inf.log"
+        wf_log_path = "./gin_scaffold.wf.log"
+        rotate_wf_log_path = "./gin_scaffold.wf.log"
+    [log.console_writer]        #工作台输出
+        on = false
+        color = false
