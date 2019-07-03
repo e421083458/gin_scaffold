@@ -27,12 +27,22 @@ func InitRouter(middlewares ...gin.HandlerFunc) *gin.Engine {
 	store := sessions.NewCookieStore([]byte("secret"))
 	apiNormalGroup := router.Group("/api")
 	apiController:=&controller.Api{}
-	apiNormalGroup.Use(sessions.Sessions("mysession", store), middleware.RecoveryMiddleware(), middleware.RequestLog(), middleware.TranslationMiddleware())
+	apiNormalGroup.Use(
+		sessions.Sessions("mysession", store),
+		middleware.RecoveryMiddleware(),
+		middleware.RequestLog(),
+		middleware.TranslationMiddleware())
 	apiNormalGroup.POST("/login",apiController.Login)
 	apiNormalGroup.GET("/loginout",apiController.LoginOut)
 
+
 	apiAuthGroup := router.Group("/api")
-	apiAuthGroup.Use(sessions.Sessions("mysession", store), middleware.RecoveryMiddleware(), middleware.RequestLog(), middleware.SessionAuthMiddleware(), middleware.TranslationMiddleware())
+	apiAuthGroup.Use(
+		sessions.Sessions("mysession", store),
+		middleware.RecoveryMiddleware(),
+		middleware.RequestLog(),
+		middleware.SessionAuthMiddleware(),
+		middleware.TranslationMiddleware())
 	apiAuthGroup.GET("/user/listpage", apiController.ListPage)
 	apiAuthGroup.GET("/user/add", apiController.AddUser)
 	apiAuthGroup.GET("/user/edit", apiController.EditUser)
