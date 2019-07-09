@@ -26,6 +26,8 @@ github.com/e421083458/golang_common v1.0.3 h1:ZaTx1WY1PK98upRPE6ZCtzbvrKTkjUpUra
 github.com/e421083458/golang_common v1.0.3/go.mod h1:TfZ1djfU2oxqIopHLoDaAfBbk5NkeInTOX3EjXQVBkU=
 github.com/e421083458/gorm v1.0.1 h1:xP3phpVGFa/HUXFK/9UlvVohvrDFdhTZF12XKK+1tJQ=
 github.com/e421083458/gorm v1.0.1/go.mod h1:fKRc3akGVO0fLrVXYIVFtIrDniw2IASHwTJNnffphJg=
+github.com/e421083458/sse v0.1.1 h1:gvCOCgxw3BQ8ps5FohmSaP7OaTZwStK9+5qRQMRxGDA=
+github.com/e421083458/sse v0.1.1/go.mod h1:CSS4w4zFC88opO4oEy1WLMjRe4GzMeEPYB6QkxwAsL8=
 github.com/eapache/go-resiliency v1.1.0/go.mod h1:kFI+JgMyC7bLPUVY133qvEBtVayf5mFgVsvEsIPBvNs=
 github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21/go.mod h1:+020luEh2TKB4/GOp8oxxtq0Daoen/Cii55CzbTV6DU=
 github.com/eapache/queue v1.1.0/go.mod h1:6eCeP0CKFpHLu8blIFXhExK/dRa7WDZfr6jVFPTqq+I=
@@ -100,6 +102,8 @@ github.com/lib/pq v1.1.1 h1:sJZmqHoEaY7f+NPP8pgLB/WxulyR3fewgCM2qaSlBb4=
 github.com/lib/pq v1.1.1/go.mod h1:5WUZQaWbwv1U+lTReE5YruASi9Al49XbQIvNi/34Woo=
 github.com/magiconair/properties v1.8.0 h1:LLgXmsheXeRoUOBOjtwPQCWIYqM/LU1ayDtDePerRcY=
 github.com/magiconair/properties v1.8.0/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czPbwD3XqdrwzmxQ=
+github.com/manucorporat/sse v0.0.0-20160126180136-ee05b128a739 h1:ykXz+pRRTibcSjG1yRhpdSHInF8yZY/mfn+Rz2Nd1rE=
+github.com/manucorporat/sse v0.0.0-20160126180136-ee05b128a739/go.mod h1:zUx1mhth20V3VKgL5jbd1BSQcW4Fy6Qs4PZvQwRFwzM=
 github.com/mattn/go-isatty v0.0.8 h1:HLtExJ+uU2HOZ+wI0Tt5DtUDrx8yhUqDcp7fYERX4CE=
 github.com/mattn/go-isatty v0.0.8/go.mod h1:Iq45c/XA43vh69/j3iqttzPXn0bhXyGjM0Hdxcsrc5s=
 github.com/mattn/go-sqlite3 v1.10.0 h1:jbhqpg7tQe4SupckyijYiy0mJJ/pRyHvXf7JdWK860o=

@@ -20,3 +20,5 @@ require (
 	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 	gopkg.in/go-playground/validator.v9 v9.29.0
 )
+
+replace github.com/gin-contrib/sse v0.1.0 => github.com/e421083458/sse v0.1.1
