@@ -6,11 +6,16 @@ Gin best practices, gin development scaffolding, too late to explain, get on the
 1. 请求链路日志打印，涵盖mysql/redis/request_in/request_out
 2. 接入validator.v9，支持多语言错误信息提示及自定义错误提示。
 3. 借助golang_common，支持了多配置环境及log/redis/mysql/http.client
+
+项目地址：https://github.com/e421083458/gin_scaffold
 ### 现在开始
 - 安装软件依赖
 go mod使用请查阅：
+
 https://blog.csdn.net/e421083458/article/details/89762113
 ```
+git clone git@github.com:e421083458/gin_scaffold.git
+cd gin_scaffold
 go mod tidy
 ```
 - 运行脚本
@@ -38,6 +43,23 @@ go run main.go
  [INFO] HttpServerRun::8880
 ```
 - 测试mysql与请求链路
+
+创建测试表,并确保正确配置 mysql_map.toml：
+```
+CREATE TABLE `area` (
+ `id` bigint(20) NOT NULL AUTO_INCREMENT,
+ `area_name` varchar(255) NOT NULL,
+ `city_id` int(11) NOT NULL,
+ `user_id` int(11) NOT NULL,
+ `update_at` datetime NOT NULL,
+ `create_at` datetime NOT NULL,
+ `delete_at` datetime NOT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='area';
+INSERT INTO `area` (`id`, `area_name`, `city_id`, `user_id`, `update_at`, `create_at`, `delete_at`) VALUES (NULL, 'area_name', '1', '2', '2019-06-15 00:00:00', '2019-06-15 00:00:00', '2019-06-15 00:00:00');
+```
+
+
 ```
 curl 'http://127.0.0.1:8880/demo/dao?id=1'
 {

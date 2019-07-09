@@ -43,6 +43,7 @@ func (f *User) Find(id int64) (*User, error) {
 func (f *User) PageList(name string, pageNo int, pageSize int) ([]*User, int64, error) {
 	var user []*User
 	var userCount int64
+	//limit offset,pagesize
 	offset := (pageNo - 1) * pageSize
 	query := public.GormPool
 	if name != "" {
