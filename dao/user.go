@@ -3,6 +3,7 @@ package dao
 import (
 	"github.com/e421083458/gin_scaffold/public"
 	"github.com/e421083458/gorm"
+	"github.com/gin-gonic/gin"
 	"time"
 )
 
@@ -22,8 +23,8 @@ func (f *User) TableName() string {
 }
 
 
-func (f *User) Del(idSlice []string) error {
-	err := public.GormPool.Where("id in (?)", idSlice).Delete(&User{}).Error
+func (f *User) Del(c *gin.Context,idSlice []string) error {
+	err := public.GormPool.SetCtx(public.GetGinTraceContext(c)).Where("id in (?)", idSlice).Delete(&User{}).Error
 	if err != nil {
 		return err
 	}
@@ -31,21 +32,21 @@ func (f *User) Del(idSlice []string) error {
 }
 
 
-func (f *User) Find(id int64) (*User, error) {
+func (f *User) Find(c *gin.Context,id int64) (*User, error) {
 	var user User
-	err := public.GormPool.Where("id = ?", id).First(&user).Error
+	err := public.GormPool.SetCtx(public.GetGinTraceContext(c)).Where("id = ?", id).First(&user).Error
 	if err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
 
-func (f *User) PageList(name string, pageNo int, pageSize int) ([]*User, int64, error) {
+func (f *User) PageList(c *gin.Context,name string, pageNo int, pageSize int) ([]*User, int64, error) {
 	var user []*User
 	var userCount int64
 	//limit offset,pagesize
 	offset := (pageNo - 1) * pageSize
-	query := public.GormPool
+	query := public.GormPool.SetCtx(public.GetGinTraceContext(c))
 	if name != "" {
 		query = query.Where("name = ?", name)
 	}
@@ -61,8 +62,8 @@ func (f *User) PageList(name string, pageNo int, pageSize int) ([]*User, int64, 
 	return user, userCount, nil
 }
 
-func (f *User) Save() error {
-	if err:=public.GormPool.Save(f).Error;err!=nil{
+func (f *User) Save(c *gin.Context) error {
+	if err:=public.GormPool.SetCtx(public.GetGinTraceContext(c)).Save(f).Error;err!=nil{
 		return err
 	}
 	return nil

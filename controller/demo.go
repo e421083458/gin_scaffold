@@ -28,7 +28,7 @@ func (demo *Demo) Index(c *gin.Context) {
 }
 
 func (demo *Demo) Dao(c *gin.Context) {
-	if area,err:=(&dao.Area{}).Find(c.DefaultQuery("id","1"));err!=nil{
+	if area,err:=(&dao.Area{}).Find(c,c.DefaultQuery("id","1"));err!=nil{
 		middleware.ResponseError(c,501,err)
 	}else{
 		js,_:=json.Marshal(area)
