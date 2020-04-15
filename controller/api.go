@@ -5,126 +5,154 @@ import (
 	"github.com/e421083458/gin_scaffold/dao"
 	"github.com/e421083458/gin_scaffold/dto"
 	"github.com/e421083458/gin_scaffold/middleware"
+	"github.com/e421083458/golang_common/lib"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"strconv"
 	"strings"
-	"time"
 )
 
-type Api struct {
+type ApiController struct {
 }
 
-func (demo *Api) Login(c *gin.Context) {
+func ApiRegister(router *gin.RouterGroup) {
+	curd := ApiController{}
+	router.POST("/login", curd.Login)
+	router.GET("/loginout", curd.LoginOut)
+}
+
+func ApiLoginRegister(router *gin.RouterGroup) {
+	curd := ApiController{}
+	router.GET("/user/listpage", curd.ListPage)
+	router.POST("/user/add", curd.AddUser)
+	router.POST("/user/edit", curd.EditUser)
+	router.POST("/user/remove", curd.RemoveUser)
+	router.POST("/user/batchremove", curd.RemoveUser)
+}
+
+func (demo *ApiController) Login(c *gin.Context) {
 	api := &dto.LoginInput{}
 	if err := api.BindingValidParams(c); err != nil {
 		middleware.ResponseError(c, 2001, err)
 		return
 	}
-	//todo 这块应该从db验证
 	if api.Username == "admin" && api.Password == "123456" {
 		session := sessions.Default(c)
 		session.Set("user", api.Username)
 		session.Save()
-		middleware.ResponseSuccess(c, api)
-	} else {
-		middleware.ResponseError(c, 2002, errors.New("账号或密码错误"))
+		middleware.ResponseSuccess(c, "")
+		return
 	}
+	middleware.ResponseError(c, 2002, errors.New("账号或密码错误"))
 	return
 }
 
-func (demo *Api) LoginOut(c *gin.Context) {
+func (demo *ApiController) LoginOut(c *gin.Context) {
 	session := sessions.Default(c)
 	session.Delete("user")
 	session.Save()
 	return
 }
 
-func (demo *Api) ListPage(c *gin.Context) {
+func (demo *ApiController) ListPage(c *gin.Context) {
 	listInput := &dto.ListPageInput{}
 	if err := listInput.BindingValidParams(c); err != nil {
+		middleware.ResponseError(c, 2001, err)
+		return
+	}
+	if listInput.PageSize == 0 {
+		listInput.PageSize = 10
+	}
+	tx, err := lib.GetGormPool("default")
+	if err != nil {
+		middleware.ResponseError(c, 2002, err)
+		return
+	}
+	userList, total, err := (&dao.User{}).PageList(c, tx, listInput)
+	if err != nil {
 		middleware.ResponseError(c, 2003, err)
 		return
 	}
-	user := &dao.User{}
-	pageInt, err := strconv.ParseInt(listInput.Page, 10, 64)
-	if err != nil {
-		middleware.ResponseError(c, 2004, err)
-		return
+	m := map[string]interface{}{
+		"list":  userList,
+		"total": total,
 	}
-	if userList, total, err := user.PageList(c, listInput.Name, int(pageInt), 20); err != nil {
-		middleware.ResponseError(c, 2005, err)
-		return
-	} else {
-		m := map[string]interface{}{
-			"list":  userList,
-			"total": total,
-		}
-		middleware.ResponseSuccess(c, m)
-	}
+	middleware.ResponseSuccess(c, m)
 	return
 }
 
-func (demo *Api) AddUser(c *gin.Context) {
+func (demo *ApiController) AddUser(c *gin.Context) {
 	addInput := &dto.AddUserInput{}
 	if err := addInput.BindingValidParams(c); err != nil {
-		middleware.ResponseError(c, 2006, err)
+		middleware.ResponseError(c, 2001, err)
 		return
 	}
-	user := &dao.User{}
-	user.Name = addInput.Name
-	user.Sex = addInput.Sex
-	user.Age = addInput.Age
-	user.Birth = addInput.Birth
-	user.Addr = addInput.Addr
-	user.CreateAt = time.Now()
-	user.UpdateAt = time.Now()
-	if err := user.Save(c); err != nil {
-		middleware.ResponseError(c, 2007, err)
+
+	tx, err := lib.GetGormPool("default")
+	if err != nil {
+		middleware.ResponseError(c, 2002, err)
+		return
+	}
+	user := &dao.User{
+		Name:  addInput.Name,
+		Sex:   addInput.Sex,
+		Age:   addInput.Age,
+		Birth: addInput.Birth,
+		Addr:  addInput.Addr,
+	}
+	if err := user.Save(c, tx); err != nil {
+		middleware.ResponseError(c, 2002, err)
 		return
 	}
 	middleware.ResponseSuccess(c, "")
 	return
 }
 
-func (demo *Api) EditUser(c *gin.Context) {
+func (demo *ApiController) EditUser(c *gin.Context) {
 	editInput := &dto.EditUserInput{}
 	if err := editInput.BindingValidParams(c); err != nil {
-		middleware.ResponseError(c, 2006, err)
+		middleware.ResponseError(c, 2001, err)
 		return
 	}
 
-	user := &dao.User{}
-	if userDb, err := user.Find(c, int64(editInput.Id)); err != nil {
-		middleware.ResponseError(c, 2006, err)
+	tx, err := lib.GetGormPool("default")
+	if err != nil {
+		middleware.ResponseError(c, 2002, err)
 		return
-	} else {
-		user = userDb
 	}
+
+	user, err := (&dao.User{}).Find(c, tx, int64(editInput.Id))
+	if err != nil {
+		middleware.ResponseError(c, 2002, err)
+		return
+	}
+
 	user.Name = editInput.Name
 	user.Sex = editInput.Sex
 	user.Age = editInput.Age
 	user.Birth = editInput.Birth
 	user.Addr = editInput.Addr
-	user.UpdateAt = time.Now()
-	if err := user.Save(c); err != nil {
-		middleware.ResponseError(c, 2007, err)
+	if err := user.Save(c, tx); err != nil {
+		middleware.ResponseError(c, 2003, err)
 		return
 	}
 	middleware.ResponseSuccess(c, "")
 	return
 }
 
-func (demo *Api) RemoveUser(c *gin.Context) {
+func (demo *ApiController) RemoveUser(c *gin.Context) {
 	removeInput := &dto.RemoveUserInput{}
 	if err := removeInput.BindingValidParams(c); err != nil {
-		middleware.ResponseError(c, 2006, err)
+		middleware.ResponseError(c, 2001, err)
 		return
 	}
 
-	user := &dao.User{}
-	if err := user.Del(c, strings.Split(removeInput.IDS, ",")); err != nil {
-		middleware.ResponseError(c, 2007, err)
+	tx, err := lib.GetGormPool("default")
+	if err != nil {
+		middleware.ResponseError(c, 2002, err)
+		return
+	}
+	if err := (&dao.User{}).Del(c, tx, strings.Split(removeInput.IDS, ",")); err != nil {
+		middleware.ResponseError(c, 2002, err)
 		return
 	}
 	middleware.ResponseSuccess(c, "")
