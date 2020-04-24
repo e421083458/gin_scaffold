@@ -25,3 +25,9 @@
     [log.console_writer]        #工作台输出
         on = false
         color = false
+
+[swagger]
+    title="gin_scaffold swagger API"
+    desc="This is a sample server celler server."
+    host="127.0.0.1:8880"
+    base_path=""

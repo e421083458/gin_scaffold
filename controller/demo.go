@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
 	"github.com/e421083458/gin_scaffold/dao"
 	"github.com/e421083458/gin_scaffold/dto"
 	"github.com/e421083458/gin_scaffold/middleware"
@@ -17,7 +16,7 @@ type DemoController struct {
 func DemoRegister(router *gin.RouterGroup) {
 	demo := DemoController{}
 	router.GET("/index", demo.Index)
-	router.GET("/bind", demo.Bind)
+	router.Any("/bind", demo.Bind)
 	router.GET("/dao", demo.Dao)
 	router.GET("/redis", demo.Redis)
 }
@@ -38,8 +37,7 @@ func (demo *DemoController) Dao(c *gin.Context) {
 		middleware.ResponseError(c, 2001, err)
 		return
 	}
-	js, _ := json.Marshal(area)
-	middleware.ResponseSuccess(c, string(js))
+	middleware.ResponseSuccess(c, area)
 	return
 }
 
@@ -51,8 +49,8 @@ func (demo *DemoController) Redis(c *gin.Context) {
 		redisKey, "redis_value")
 	redisValue, err := redis.String(
 		lib.RedisConfDo(public.GetTraceContext(c), "default",
-		"GET",
-		redisKey))
+			"GET",
+			redisKey))
 	if err != nil {
 		middleware.ResponseError(c, 2001, err)
 		return
@@ -61,12 +59,22 @@ func (demo *DemoController) Redis(c *gin.Context) {
 	return
 }
 
+// ListPage godoc
+// @Summary 测试数据绑定
+// @Description 测试数据绑定
+// @Tags 用户
+// @ID /demo/bind
+// @Accept  json
+// @Produce  json
+// @Param polygon body dto.DemoInput true "body"
+// @Success 200 {object} middleware.Response{data=dto.DemoInput} "success"
+// @Router /demo/bind [post]
 func (demo *DemoController) Bind(c *gin.Context) {
-	st := &dto.DemoInput{}
-	if err := st.BindingValidParams(c); err != nil {
+	params := &dto.DemoInput{}
+	if err := params.BindingValidParams(c); err != nil {
 		middleware.ResponseError(c, 2001, err)
 		return
 	}
-	middleware.ResponseSuccess(c, "")
+	middleware.ResponseSuccess(c, params)
 	return
 }

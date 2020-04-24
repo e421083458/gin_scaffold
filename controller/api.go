@@ -72,9 +72,9 @@ func (demo *ApiController) ListPage(c *gin.Context) {
 		middleware.ResponseError(c, 2003, err)
 		return
 	}
-	m := map[string]interface{}{
-		"list":  userList,
-		"total": total,
+	m := &dao.ListPageOutput{
+		List:  userList,
+		Total: total,
 	}
 	middleware.ResponseSuccess(c, m)
 	return

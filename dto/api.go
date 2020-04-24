@@ -6,8 +6,8 @@ import (
 )
 
 type LoginInput struct {
-	Username string `form:"username" json:"username" comment:"用户名"  validate:"required"`
-	Password string `form:"password" json:"password" comment:"密码"   validate:"required"`
+	Username string `form:"username" json:"username" comment:"用户名"  validate:"required" example:""`
+	Password string `form:"password" json:"password" comment:"密码"   validate:"required" example:""`
 }
 
 func (params *LoginInput) BindingValidParams(c *gin.Context) error {
@@ -15,9 +15,9 @@ func (params *LoginInput) BindingValidParams(c *gin.Context) error {
 }
 
 type ListPageInput struct {
-	PageSize int    `form:"page_size" json:"page_size" comment:"每页记录数" validate:""`
-	Page     int    `form:"page" json:"page" comment:"页数" validate:"required"`
-	Name     string `form:"name" json:"name" comment:"姓名" validate:""`
+	PageSize int    `form:"page_size" json:"page_size" comment:"每页记录数" validate:"" example:"10"`
+	Page     int    `form:"page" json:"page" comment:"页数" validate:"required" example:"1"`
+	Name     string `form:"name" json:"name" comment:"姓名" validate:"" example:""`
 }
 
 func (params *ListPageInput) BindingValidParams(c *gin.Context) error {

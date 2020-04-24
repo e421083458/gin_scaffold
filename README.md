@@ -1,11 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [gin_scaffold](#gin_scaffold)
+    - [现在开始](#%E7%8E%B0%E5%9C%A8%E5%BC%80%E5%A7%8B)
+    - [文件分层](#%E6%96%87%E4%BB%B6%E5%88%86%E5%B1%82)
+    - [输出格式统一封装](#%E8%BE%93%E5%87%BA%E6%A0%BC%E5%BC%8F%E7%BB%9F%E4%B8%80%E5%B0%81%E8%A3%85)
+    - [定义中间件链路日志打印](#%E5%AE%9A%E4%B9%89%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%93%BE%E8%B7%AF%E6%97%A5%E5%BF%97%E6%89%93%E5%8D%B0)
+    - [请求数据绑定到结构体与校验](#%E8%AF%B7%E6%B1%82%E6%95%B0%E6%8D%AE%E7%BB%91%E5%AE%9A%E5%88%B0%E7%BB%93%E6%9E%84%E4%BD%93%E4%B8%8E%E6%A0%A1%E9%AA%8C)
+    - [log日志 /redis /mysql / http.client 常用方法](#log%E6%97%A5%E5%BF%97-redis-mysql--httpclient-%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95)
+    - [swagger文档生成](#swagger%E6%96%87%E6%A1%A3%E7%94%9F%E6%88%90)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # gin_scaffold
 Gin best practices, gin development scaffolding, too late to explain, get on the bus.
 
 使用gin构建了企业级脚手架，代码简洁易读，可快速进行高效web开发。
 主要功能有：
 1. 请求链路日志打印，涵盖mysql/redis/request_in/request_out
-2. 接入validator.v9，支持多语言错误信息提示及自定义错误提示。
-3. 借助golang_common，支持了多配置环境及log/redis/mysql/http.client
+2. 支持多语言错误信息提示及自定义错误提示。
+3. 支持了多配置环境
+4. 封装了 log日志 /redis /mysql / http.client 常用方法
+5. 支持swagger文档生成
 
 项目地址：https://github.com/e421083458/gin_scaffold
 ### 现在开始
@@ -58,7 +75,6 @@ CREATE TABLE `area` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='area';
 INSERT INTO `area` (`id`, `area_name`, `city_id`, `user_id`, `update_at`, `create_at`, `delete_at`) VALUES (NULL, 'area_name', '1', '2', '2019-06-15 00:00:00', '2019-06-15 00:00:00', '2019-06-15 00:00:00');
 ```
-
 
 ```
 curl 'http://127.0.0.1:8880/demo/dao?id=1'
@@ -129,33 +145,6 @@ curl 'http://127.0.0.1:8880/demo/bind?name=name&locale=en'
 │   └── route.go
 └── tmpl
 ```
-### 引入轻量级golang类库，支持 mysql、redis、http.client、log、支持多级环境配置、支持链路日志打印
-```
-go get -v github.com/e421083458/golang_common
-```
-> 测试日志打印功能：
-```
-package main
-
-import (
-	"github.com/e421083458/golang_common/lib"
-	"log"
-	"time"
-)
-
-func main() {
-	if err := lib.InitModule("./conf/dev/",[]string{"base","mysql","redis",}); err != nil {
-		log.Fatal(err)
-	}
-	defer lib.Destroy()
-
-	//todo sth
-	lib.Log.TagInfo(lib.NewTrace(), lib.DLTagUndefind, map[string]interface{}{"message": "todo sth"})
-	time.Sleep(time.Second)
-}
-```
-类库更多功能细节请查看：
-https://github.com/e421083458/golang_common
 
 ### 输出格式统一封装
 ```
@@ -290,3 +279,38 @@ func (demo *DemoController) Bind(c *gin.Context) {
 	return
 }
 ```
+### log日志 /redis /mysql / http.client 常用方法
+
+参考文档：https://github.com/e421083458/golang_common
+
+
+### swagger文档生成
+
+https://github.com/swaggo/swag/releases
+
+- 下载对应操作系统的执行文件到$GOPATH/bin下面
+
+如下：
+```
+➜  gin_scaffold git:(master) ✗ ll -r $GOPATH/bin
+total 434168
+-rwxr-xr-x  1 niuyufu  staff    13M  4  3 17:38 swag
+```
+
+- 设置接口文档参考： `controller/demo.go` 的 Bind方法的注释设置
+
+```
+// ListPage godoc
+// @Summary 测试数据绑定
+// @Description 测试数据绑定
+// @Tags 用户
+// @ID /demo/bind
+// @Accept  json
+// @Produce  json
+// @Param polygon body dto.DemoInput true "body"
+// @Success 200 {object} middleware.Response{data=dto.DemoInput} "success"
+// @Router /demo/bind [post]
+```
+
+- 生成接口文档：`swag init`
+- 然后启动服务器：`go run main.go`，浏览地址: http://127.0.0.1:8880/swagger/index.html

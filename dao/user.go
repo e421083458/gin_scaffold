@@ -8,6 +8,11 @@ import (
 	"time"
 )
 
+type ListPageOutput struct {
+	List  []User `form:"list" json:"list" comment:"用户列表" validate:""`
+	Total int64  `form:"page" json:"page" comment:"用户总数" validate:"required"`
+}
+
 type User struct {
 	Id        int       `json:"id" gorm:"column:id"`
 	Name      string    `json:"name" gorm:"column:name"`
