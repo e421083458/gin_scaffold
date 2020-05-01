@@ -5,10 +5,7 @@
 - [gin_scaffold](#gin_scaffold)
     - [现在开始](#%E7%8E%B0%E5%9C%A8%E5%BC%80%E5%A7%8B)
     - [文件分层](#%E6%96%87%E4%BB%B6%E5%88%86%E5%B1%82)
-    - [输出格式统一封装](#%E8%BE%93%E5%87%BA%E6%A0%BC%E5%BC%8F%E7%BB%9F%E4%B8%80%E5%B0%81%E8%A3%85)
-    - [定义中间件链路日志打印](#%E5%AE%9A%E4%B9%89%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%93%BE%E8%B7%AF%E6%97%A5%E5%BF%97%E6%89%93%E5%8D%B0)
-    - [请求数据绑定到结构体与校验](#%E8%AF%B7%E6%B1%82%E6%95%B0%E6%8D%AE%E7%BB%91%E5%AE%9A%E5%88%B0%E7%BB%93%E6%9E%84%E4%BD%93%E4%B8%8E%E6%A0%A1%E9%AA%8C)
-    - [log日志 /redis /mysql / http.client 常用方法](#log%E6%97%A5%E5%BF%97-redis-mysql--httpclient-%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95)
+    - [log / redis / mysql / http.client 常用方法](#log--redis--mysql--httpclient-%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95)
     - [swagger文档生成](#swagger%E6%96%87%E6%A1%A3%E7%94%9F%E6%88%90)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -98,7 +95,7 @@ tail -f gin_scaffold.inf.log
 curl 'http://127.0.0.1:8880/demo/bind?name=name&locale=zh'
 {
     "errno": 500,
-    "errmsg": "Age为必填字段,Passwd为必填字段",
+    "errmsg": "年龄为必填字段,密码为必填字段",
     "data": "",
     "trace_id": "c0a8fe445d05badae8c00f9fb62158b0"
 }
@@ -146,140 +143,7 @@ curl 'http://127.0.0.1:8880/demo/bind?name=name&locale=en'
 └── tmpl
 ```
 
-### 输出格式统一封装
-```
-func ResponseError(c *gin.Context, code ResponseCode, err error) {
-	trace, _ := c.Get("trace")
-	traceContext, _ := trace.(*lib.TraceContext)
-	traceId := ""
-	if traceContext != nil {
-		traceId = traceContext.TraceId
-	}
-	resp := &Response{ErrorCode: code, ErrorMsg: err.Error(), Data: "", TraceId: traceId}
-	c.JSON(200, resp)
-	response, _ := json.Marshal(resp)
-	c.Set("response", string(response))
-	c.AbortWithError(200, err)
-}
-
-func ResponseSuccess(c *gin.Context, data interface{}) {
-	trace, _ := c.Get("trace")
-	traceContext, _ := trace.(*lib.TraceContext)
-	traceId := ""
-	if traceContext != nil {
-		traceId = traceContext.TraceId
-	}
-	resp := &Response{ErrorCode: SuccessCode, ErrorMsg: "", Data: data, TraceId: traceId}
-	c.JSON(200, resp)
-	response, _ := json.Marshal(resp)
-	c.Set("response", string(response))
-}
-```
-### 定义中间件链路日志打印
-```
-package middleware
-
-import (
-	"bytes"
-	"errors"
-	"fmt"
-	"github.com/e421083458/gin_scaffold/public"
-	"github.com/e421083458/golang_common/lib"
-	"github.com/gin-gonic/gin"
-	"io/ioutil"
-	"time"
-)
-//链路请求日志
-func RequestInLog(c *gin.Context) {
-	traceContext := lib.NewTrace()
-	if traceId := c.Request.Header.Get("com-header-rid"); traceId != "" {
-		traceContext.TraceId = traceId
-	}
-	if spanId := c.Request.Header.Get("com-header-spanid"); spanId != "" {
-		traceContext.SpanId = spanId
-	}
-	c.Set("startExecTime", time.Now())
-	c.Set("trace", traceContext)
-	bodyBytes, _ := ioutil.ReadAll(c.Request.Body)
-	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes)) // Write body back
-
-	lib.Log.TagInfo(traceContext, "_com_request_in", map[string]interface{}{
-		"uri":    c.Request.RequestURI,
-		"method": c.Request.Method,
-		"args":   c.Request.PostForm,
-		"body":   string(bodyBytes),
-		"from":   c.ClientIP(),
-	})
-}
-//链路输出日志
-func RequestOutLog(c *gin.Context) {
-	endExecTime := time.Now()
-	response, _ := c.Get("response")
-	st, _ := c.Get("startExecTime")
-	startExecTime, _ := st.(time.Time)
-	public.ComLogNotice(c, "_com_request_out", map[string]interface{}{
-		"uri":       c.Request.RequestURI,
-		"method":    c.Request.Method,
-		"args":      c.Request.PostForm,
-		"from":      c.ClientIP(),
-		"response":  response,
-		"proc_time": endExecTime.Sub(startExecTime).Seconds(),
-	})
-}
-
-func TokenAuthMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		RequestInLog(c)
-		defer RequestOutLog(c)
-		isMatched := false
-		for _, host := range lib.GetStringSliceConf("base.http.allow_ip") {
-			if c.ClientIP() == host {
-				isMatched = true
-			}
-		}
-		if !isMatched{
-			ResponseError(c, InternalErrorCode, errors.New(fmt.Sprintf("%v, not in iplist", c.ClientIP())))
-			c.Abort()
-			return
-		}
-		c.Next()
-	}
-}
-```
-### 请求数据绑定到结构体与校验
-
-dto/demo.go
-```
-package dto
-
-import (
-	"github.com/e421083458/gin_scaffold/public"
-	"github.com/gin-gonic/gin"
-)
-
-type DemoInput struct {
-	Name   string `form:"name" comment:"姓名" validate:"required"`
-	Age    int64  `form:"age" comment:"年龄" validate:"required"`
-	Passwd string `form:"passwd" comment:"密码" validate:"required"`
-}
-
-func (params *DemoInput) BindingValidParams(c *gin.Context)  error{
-	return public.DefaultGetValidParams(c, params)
-}
-```
-controller/demo.go
-```
-func (demo *DemoController) Bind(c *gin.Context) {
-	st := &dto.DemoInput{}
-	if err := st.BindingValidParams(c); err != nil {
-		middleware.ResponseError(c, 2001, err)
-		return
-	}
-	middleware.ResponseSuccess(c, "")
-	return
-}
-```
-### log日志 /redis /mysql / http.client 常用方法
+### log / redis / mysql / http.client 常用方法
 
 参考文档：https://github.com/e421083458/golang_common
 
