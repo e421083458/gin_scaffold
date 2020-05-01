@@ -1,0 +1,63 @@
+definitions:
+  dto.DemoInput:
+    properties:
+      age:
+        example: 20
+        type: integer
+      name:
+        example: 姓名
+        type: string
+      passwd:
+        example: "123456"
+        type: string
+    required:
+    - age
+    - name
+    - passwd
+    type: object
+  middleware.Response:
+    properties:
+      data:
+        type: object
+      errmsg:
+        type: string
+      errno:
+        type: integer
+      stack:
+        type: object
+      trace_id:
+        type: object
+    type: object
+info:
+  contact: {}
+  license: {}
+paths:
+  /demo/bind:
+    post:
+      consumes:
+      - application/json
+      description: 测试数据绑定
+      operationId: /demo/bind
+      parameters:
+      - description: body
+        in: body
+        name: polygon
+        required: true
+        schema:
+          $ref: '#/definitions/dto.DemoInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.DemoInput'
+              type: object
+      summary: 测试数据绑定
+      tags:
+      - 用户
+swagger: "2.0"
