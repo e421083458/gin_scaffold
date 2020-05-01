@@ -112,35 +112,33 @@ curl 'http://127.0.0.1:8880/demo/bind?name=name&locale=en'
 ### 文件分层
 ```
 ├── README.md
-├── conf   配置文件夹
+├── conf            配置文件夹
 │   └── dev
 │       ├── base.toml
 │       ├── mysql_map.toml
 │       └── redis_map.toml
-├── controller 控制器
+├── controller      控制器
 │   └── demo.go
-├── dao DB数据访问层
+├── dao             DB数据层
 │   └── demo.go
-├── dto  Bind结构体层
+├── docs            swagger文件层
+├── dto             输入输出结构层
 │   └── demo.go
-├── gin_scaffold.inf.log  info日志
-├── gin_scaffold.wf.log warning日志
-├── go.mod go module管理文件
+├── go.mod
 ├── go.sum
-├── main.go
-├── middleware 中间件层
+├── main.go         入口文件
+├── middleware      中间件层
 │   ├── panic.go
 │   ├── response.go
 │   ├── token_auth.go
 │   └── translation.go
-├── public  公共文件
+├── public          公共文件
 │   ├── log.go
 │   ├── mysql.go
 │   └── validate.go
-├── router  路由层
-│   ├── httpserver.go
-│   └── route.go
-└── tmpl
+└── router          路由层
+    ├── httpserver.go
+    └── route.go
 ```
 
 ### log / redis / mysql / http.client 常用方法
