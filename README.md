@@ -32,7 +32,10 @@ git clone git@github.com:e421083458/gin_scaffold.git
 cd gin_scaffold
 go mod tidy
 ```
+- 确保正确配置了 conf/mysql_map.toml、conf/redis_map.toml：
+
 - 运行脚本
+
 ```
 go run main.go
 
@@ -58,7 +61,7 @@ go run main.go
 ```
 - 测试mysql与请求链路
 
-创建测试表,并确保正确配置 mysql_map.toml：
+创建测试表：
 ```
 CREATE TABLE `area` (
  `id` bigint(20) NOT NULL AUTO_INCREMENT,
