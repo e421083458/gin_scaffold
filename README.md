@@ -140,10 +140,12 @@ curl 'http://127.0.0.1:8880/demo/bind?name=name&locale=en'
 │   ├── mysql.go
 │   └── validate.go
 └── router          路由层
-    ├── httpserver.go
-    └── route.go
+│   ├── httpserver.go
+│   └── route.go
+└── services        逻辑处理层
 ```
-
+层次划分
+控制层 --> 逻辑处理层 --> DB数据层
 ### log / redis / mysql / http.client 常用方法
 
 参考文档：https://github.com/e421083458/golang_common
